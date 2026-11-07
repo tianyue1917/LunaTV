@@ -1,6 +1,7 @@
 import LoginPageClient from './LoginPageClient';
 
-// Render authentication fields on the server for older TV WebViews.
+// Render the username field in server HTML, so older TV WebViews do not
+// need to hydrate React before showing the account/password form.
 export const dynamic = 'force-dynamic';
 
 function safeRedirect(candidate: unknown): string {
