@@ -3,6 +3,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { shouldUseTVCompatibilityMode } from '@/lib/tv-compat';
+
 interface VirtualGridProps<T> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
@@ -22,7 +24,7 @@ interface VirtualGridProps<T> {
  * It measures the actual container width + first-row height so it
  * works with responsive `grid-template-columns`.
  */
-export default function VirtualGrid<T>({
+function VirtualizedGrid<T>({
   items,
   renderItem,
   estimateRowHeight = 320,
@@ -111,4 +113,25 @@ export default function VirtualGrid<T>({
       </div>
     </>
   );
+}
+
+// Older TV WebViews do not always support ResizeObserver, and some do not
+// expose document.body as a valid virtualizer scroll element. Render real
+// rows instead; users must always be able to see their search results.
+export default function VirtualGrid<T>(props: VirtualGridProps<T>) {
+  if (shouldUseTVCompatibilityMode()) {
+    return (
+      <div
+        data-tv-simple-grid='true'
+        className={`grid ${props.className || ''}`}
+      >
+        {props.items.map((item, index) => (
+          <React.Fragment key={index}>
+            {props.renderItem(item, index)}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  }
+  return <VirtualizedGrid {...props} />;
 }
