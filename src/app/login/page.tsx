@@ -17,19 +17,20 @@ function safeRedirect(candidate: unknown): string {
   return candidate;
 }
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams?: { redirect?: string; error?: string };
+  searchParams?: Promise<{ redirect?: string; error?: string }>;
 }) {
+  const query = await searchParams;
   const shouldAskUsername =
     (process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage') !== 'localstorage';
 
   return (
     <LoginPageClient
       shouldAskUsername={shouldAskUsername}
-      redirect={safeRedirect(searchParams?.redirect)}
-      initialError={searchParams?.error || null}
+      redirect={safeRedirect(query?.redirect)}
+      initialError={query?.error || null}
     />
   );
 }
